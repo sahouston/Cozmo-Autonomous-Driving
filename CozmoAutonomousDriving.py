@@ -48,9 +48,13 @@ def run(sdk_conn):
                 robot.stop_all_motors()
             else:
                 print("Throttle: {:>6.3f}".format(joystick.throttle))
-                robot.drive_wheel_motors(150 * joystick.throttle, 150 * joystick.throttle, l_wheel_acc=None, r_wheel_acc=None)
+                print("X: {:>6.3f}".format(joystick.x))
 
-        pygame.time.wait(10)
+                l_wheel_speed = (joystick.throttle * 150.0) + (joystick.x * 75.0)
+                r_wheel_speed = (joystick.throttle * 150.0) - (joystick.x * 75.0)
+                robot.drive_wheel_motors(l_wheel_speed, r_wheel_speed, l_wheel_acc=500, r_wheel_acc=500)
+
+        pygame.time.wait(100)
         
     # Close the window and quit.
     # If you forget this line, the program will 'hang'
