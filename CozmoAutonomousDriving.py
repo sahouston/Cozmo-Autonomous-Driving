@@ -8,6 +8,7 @@ class Joystick:
         self.y = 0.0
         self.z = 0.0
         self.throttle = 0.0
+        self.button = 0
 
     def poll(self):
         joystick = pygame.joystick.Joystick(0)
@@ -25,20 +26,30 @@ class Joystick:
                 elif event.axis == 3:
                     self.z = event.value
                 return True
+            elif event.type == pygame.JOYBUTTONDOWN:
+                self.button = 1 # event.button
+                return True
         return False
 
 
-def main():
-    pygame.init()
-    done = False
-
+def run(sdk_conn):
+    robot = sdk_conn.wait_for_robot()
     joystick = Joystick()
 
     # -------- Main Program Loop -----------
-    while done==False:
-
+    while True:
         if joystick.poll():
-            print("Throttle: {:>6.3f}".format(joystick.throttle))
+            if joystick.button != 0:
+                # Button pressed, stop moving and exit
+                robot.stop_all_motors()
+                break
+
+            if abs(joystick.throttle) < 0.05:
+                robot.stop_all_motors()
+            else:
+                print("Throttle: {:>6.3f}".format(joystick.throttle))
+                robot.drive_wheel_motors(150 * joystick.throttle, 150 * joystick.throttle, l_wheel_acc=None, r_wheel_acc=None)
+
         pygame.time.wait(10)
         
     # Close the window and quit.
@@ -46,5 +57,14 @@ def main():
     # on exit if running from IDLE.
     pygame.quit ()
 
+
 if __name__ == "__main__":
-    main()
+    pygame.init()
+    cozmo.setup_basic_logging()
+    cozmo.robot.Robot.drive_off_charger_on_connect = False  # RC can drive off charger if required
+    try:
+        cozmo.connect(run)
+    except KeyboardInterrupt as e:
+        pass
+    except cozmo.ConnectionError as e:
+        sys.exit("A connection error occurred: %s" % e)
