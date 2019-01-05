@@ -14,8 +14,11 @@ class Joystick:
         joystick = pygame.joystick.Joystick(0)
         joystick.init()
 
-        # EVENT PROCESSING STEP
+        # Get events
         for event in pygame.event.get():
+            # You may need to change the axis mapping.
+            # Currently axis 0 turns cozmo left/right (x)
+            # axis 2 (inverted) controls fwd/reverse speed (throttle)
             if event.type == pygame.JOYAXISMOTION:
                 if event.axis == 0:
                     self.x = event.value
@@ -47,25 +50,18 @@ def run(sdk_conn):
             if abs(joystick.throttle) < 0.05:
                 robot.stop_all_motors()
             else:
-                print("Throttle: {:>6.3f}".format(joystick.throttle))
-                print("X: {:>6.3f}".format(joystick.x))
-
                 l_wheel_speed = (joystick.throttle * 150.0) + (joystick.x * 75.0)
                 r_wheel_speed = (joystick.throttle * 150.0) - (joystick.x * 75.0)
                 robot.drive_wheel_motors(l_wheel_speed, r_wheel_speed, l_wheel_acc=500, r_wheel_acc=500)
 
-        pygame.time.wait(100)
+        pygame.time.wait(100) # sleep
         
-    # Close the window and quit.
-    # If you forget this line, the program will 'hang'
-    # on exit if running from IDLE.
-    pygame.quit ()
+    pygame.quit()
 
 
 if __name__ == "__main__":
     pygame.init()
     cozmo.setup_basic_logging()
-    cozmo.robot.Robot.drive_off_charger_on_connect = False  # RC can drive off charger if required
     try:
         cozmo.connect(run)
     except KeyboardInterrupt as e:
