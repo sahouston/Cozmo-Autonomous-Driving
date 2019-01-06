@@ -1,5 +1,7 @@
 import pygame
 import cozmo
+import numpy as np
+from PIL import Image
 
 class Joystick:
     def __init__(self):
@@ -38,9 +40,20 @@ class Joystick:
 def run(sdk_conn):
     robot = sdk_conn.wait_for_robot()
     joystick = Joystick()
+    robot.camera.image_stream_enabled = True
+
+    screen = pygame.display.set_mode((640,480))
 
     # -------- Main Program Loop -----------
     while True:
+        latest_image = robot.world.latest_image
+
+        if latest_image is not None:            
+            raw = latest_image.raw_image
+            py_image = pygame.image.fromstring(raw.tobytes(), raw.size, raw.mode)
+            screen.blit(py_image, (0,0))
+            pygame.display.flip() # update the display
+
         if joystick.poll():
             if joystick.button != 0:
                 # Button pressed, stop moving and exit
