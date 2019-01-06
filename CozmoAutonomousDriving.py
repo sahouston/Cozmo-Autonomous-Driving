@@ -1,5 +1,6 @@
 import pygame
 import cozmo
+import time
 import numpy as np
 from PIL import Image
 
@@ -38,6 +39,9 @@ def run(sdk_conn):
     
     screen = pygame.display.set_mode((640,480))
 
+    images = list()
+    steer = list()
+
     # -------- Main Program Loop -----------
     run = True
     while run:
@@ -50,30 +54,50 @@ def run(sdk_conn):
             elif event.type == pygame.QUIT:
                 run = False
 
-        latest_image = robot.world.latest_image
-        if latest_image is not None:            
-            raw = latest_image.raw_image
-            py_image = pygame.image.fromstring(raw.tobytes(), raw.size, raw.mode)
-            screen.blit(py_image, (0,0))
-            pygame.display.flip() # update the display
-
         if joystickMoved:
             if joystick.button != 0:
                 # Button pressed, stop moving and exit
                 robot.stop_all_motors()
                 break
 
-            if abs(joystick.throttle) < 0.05:
+            if abs(joystick.throttle) < 0.1:
                 robot.stop_all_motors()
             else:
-                l_wheel_speed = (joystick.throttle * 150.0) + (joystick.x * 75.0)
-                r_wheel_speed = (joystick.throttle * 150.0) - (joystick.x * 75.0)
+                if joystick.throttle > 0.0:
+                    direction = 1
+                else:
+                    direction = -1
+                #l_wheel_speed = (joystick.throttle * 150.0) + (joystick.x * 75.0)
+                #r_wheel_speed = (joystick.throttle * 150.0) - (joystick.x * 75.0)
+                l_wheel_speed = (direction * 75.0) + (joystick.x * 75.0)
+                r_wheel_speed = (direction * 75.0) - (joystick.x * 75.0)
                 robot.drive_wheel_motors(l_wheel_speed, r_wheel_speed, l_wheel_acc=500, r_wheel_acc=500)
+
+        latest_image = robot.world.latest_image
+        if latest_image is not None:            
+            raw = latest_image.raw_image
+            # Convert to pygame image and display in window
+            py_image = pygame.image.fromstring(raw.tobytes(), raw.size, raw.mode)
+            screen.blit(py_image, (0,0))
+            pygame.display.flip() # update the display
+            # Scale to 64x64
+            scaled_img = raw.resize((64,64), Image.BICUBIC)
+            images.append(scaled_img)
+            steer.append(joystick.x)
 
         pygame.time.wait(100) # sleep
         
     pygame.quit()
 
+    img_arr = np.zeros((len(images),3,64,64), dtype=np.float16)
+    steer_arr = np.zeros(len(steer), dtype=np.float32)
+    for i in range(0, len(images)):
+        img_arr[i] = np.array(images[i],dtype=np.float16).transpose((2,0,1))/255.
+        steer_arr[i] = steer[i]
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    np.savez(timestr+'-images.npz', img_arr)
+    np.savez(timestr+'-steer.npz', steer_arr)
 
 if __name__ == "__main__":
     pygame.init()
