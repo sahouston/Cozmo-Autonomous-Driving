@@ -13,3 +13,5 @@ https://docs.nvidia.com/deeplearning/sdk/cudnn-install/
 conda install numpy scipy mkl-service libpython nose sklearn
 conda install theano pygpu
 conda install -c conda-forge opencv 
+pip install pygame 
+pip install cozmo[camera]
