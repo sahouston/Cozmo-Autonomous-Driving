@@ -5,7 +5,7 @@ import numpy as np
 import sys
 from PIL import Image
 
-imgSize = (128, 128)
+imgSize = (66, 200, 3) # h, w, channels
 
 class Joystick:
     def __init__(self):
@@ -38,6 +38,8 @@ class Joystick:
 def run(sdk_conn):
     robot = sdk_conn.wait_for_robot()
     robot.camera.image_stream_enabled = True
+    robot.camera.color_image_enabled = True
+    # Lift arms and look down to get good view of road ahead
     robot.set_lift_height(1.0, in_parallel=True)
     robot.set_head_angle(cozmo.robot.MIN_HEAD_ANGLE, in_parallel=True)
 
@@ -87,7 +89,7 @@ def run(sdk_conn):
             screen.blit(py_image, (0,0))
             pygame.display.flip() # update the display
             # Scale image
-            scaled_img = raw.resize(imgSize, Image.BICUBIC)
+            scaled_img = raw.resize((imgSize[1], imgSize[0]), Image.BICUBIC)
             images.append(scaled_img)
             steer.append(joystick.x)
 
@@ -95,10 +97,10 @@ def run(sdk_conn):
         
     pygame.quit()
 
-    img_arr = np.zeros((len(images),3,imgSize[0],imgSize[1]), dtype=np.float16)
+    img_arr = np.zeros((len(images), imgSize[0], imgSize[1], imgSize[2]), dtype=np.float16)
     steer_arr = np.zeros(len(steer), dtype=np.float32)
     for i in range(0, len(images)):
-        img_arr[i] = np.array(images[i],dtype=np.float16).transpose((2,0,1))/255.
+        img_arr[i] = np.array(images[i], dtype=np.float16) / 255.
         steer_arr[i] = steer[i]
 
     timestr = time.strftime("%Y%m%d-%H%M%S")

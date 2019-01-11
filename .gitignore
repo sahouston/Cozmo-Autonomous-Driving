@@ -3,4 +3,5 @@
 data/
 scratch/
 weights/
+backup/
 .ipynb_checkpoints/

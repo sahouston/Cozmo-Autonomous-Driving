@@ -35,7 +35,7 @@ from tqdm import tqdm
 import scipy
 from scipy import misc
 
-imgSize = (128, 128)
+imgSize = (66, 200, 3) # h, w, channels
 speed = 75.0
 #speed = 30.0
 
@@ -54,10 +54,12 @@ def run(sdk_conn):
                   metrics=['mse','accuracy'])
 
     # Prime Keras by making a first prediction
-    steer = model.predict(np.zeros((1,3,128,128), dtype=np.float16))
+    steer = model.predict(np.zeros((1,imgSize[0],imgSize[1],imgSize[2]), dtype=np.float16))
 
     robot = sdk_conn.wait_for_robot()
     robot.camera.image_stream_enabled = True
+    robot.camera.color_image_enabled = True
+    # Lift arms and look down to get good view of road ahead
     robot.set_lift_height(1.0, in_parallel=True)
     robot.set_head_angle(cozmo.robot.MIN_HEAD_ANGLE, in_parallel=True)
 
@@ -81,12 +83,12 @@ def run(sdk_conn):
             screen.blit(py_image, (0,0))
             pygame.display.flip() # update the display
             # Scale image
-            scaled_img = raw.resize(imgSize, Image.BICUBIC)
-            steer = model.predict(np.array(scaled_img, dtype=np.float16, ndmin=4).transpose((0,3,1,2))/255.)
+            scaled_img = raw.resize((imgSize[1], imgSize[0]), Image.BICUBIC)
+            steer = model.predict(np.array(scaled_img, dtype=np.float16, ndmin=4)/255.)
 
         #print(steer)
-        l_wheel_speed = speed + (steer * 75.0 * 2) # TODO: shouldn't need to * 2
-        r_wheel_speed = speed - (steer * 75.0 * 2)
+        l_wheel_speed = speed + (steer * 75.0 * 1.5) # TODO: shouldn't need to * 1.5
+        r_wheel_speed = speed - (steer * 75.0 * 1.5)
         robot.drive_wheel_motors(l_wheel_speed, r_wheel_speed, l_wheel_acc=500, r_wheel_acc=500)
         pygame.time.wait(100) # sleep
         
