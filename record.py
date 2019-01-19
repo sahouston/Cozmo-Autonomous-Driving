@@ -3,6 +3,7 @@ import cozmo
 import time
 import numpy as np
 import sys
+import autodrive_constants
 from PIL import Image
 
 imgSize = (66, 200, 3) # h, w, channels
@@ -38,7 +39,7 @@ def run(sdk_conn):
     robot.camera.color_image_enabled = True
     # Lift arms and look down to get good view of road ahead
     robot.set_lift_height(1.0, in_parallel=True)
-    robot.set_head_angle(cozmo.robot.MIN_HEAD_ANGLE, in_parallel=True)
+    robot.set_head_angle(autodrive_constants.HEAD_ANGLE, in_parallel=True)
 
     joystick = Joystick()
 
@@ -78,8 +79,8 @@ def run(sdk_conn):
                     direction = -1
                 #l_wheel_speed = (joystick.throttle * 150.0) + (joystick.x * 75.0)
                 #r_wheel_speed = (joystick.throttle * 150.0) - (joystick.x * 75.0)
-                l_wheel_speed = (direction * 75.0) + (joystick.x * 75.0)
-                r_wheel_speed = (direction * 75.0) - (joystick.x * 75.0)
+                l_wheel_speed = (direction * autodrive_constants.RECORD_DRIVE_SPEED) + (joystick.x * 75.0)
+                r_wheel_speed = (direction * autodrive_constants.RECORD_DRIVE_SPEED) - (joystick.x * 75.0)
                 robot.drive_wheel_motors(l_wheel_speed, r_wheel_speed, l_wheel_acc=500, r_wheel_acc=500)
 
         latest_image = robot.world.latest_image
