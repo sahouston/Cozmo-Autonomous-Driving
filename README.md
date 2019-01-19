@@ -42,7 +42,7 @@ Then:
 ```
 conda install numpy scipy mkl-service libpython nose sklearn
 conda install theano pygpu
-conda install -c conda-forge opencv 
+conda install -c conda-forge opencv keras
 pip install pygame 
 ```
 
