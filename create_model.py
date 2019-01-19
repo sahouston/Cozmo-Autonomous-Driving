@@ -1,34 +1,15 @@
-from __future__ import absolute_import
-from __future__ import print_function
 import os
-
 
 os.environ['KERAS_BACKEND'] = 'theano'
 os.environ['THEANO_FLAGS']='mode=FAST_RUN,device=cuda0,floatX=float32,optimizer=None'
 
-
-import keras
 import keras.models as models
-
-from keras.models import Sequential, Model
+from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten, Reshape
-from keras.layers import BatchNormalization,Input
-from keras.layers.recurrent import SimpleRNN, LSTM
-from keras.layers.convolutional import Convolution2D
+from keras.layers import BatchNormalization
 from keras.layers import Conv2D
-from keras.optimizers import SGD, Adam, RMSprop
-import sklearn.metrics as metrics
 
-import cv2
-import numpy as np
 import json
-
-import math
-import h5py
-import glob
-from tqdm import tqdm
-import scipy
-from scipy import misc
 
 imgSize = (66, 200, 3) # h, w, channels
 

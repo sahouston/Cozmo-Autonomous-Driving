@@ -1,39 +1,15 @@
-from __future__ import absolute_import
-from __future__ import print_function
 import os
-
 
 os.environ['KERAS_BACKEND'] = 'theano'
 os.environ['THEANO_FLAGS']='mode=FAST_RUN,device=cuda0,floatX=float32,optimizer=None'
 
-
-import keras
 import keras.models as models
+from keras.models import Sequential
 
-from keras.models import Sequential, Model
-from keras.layers.core import Dense, Dropout, Activation, Flatten, Reshape
-from keras.layers import BatchNormalization,Input
-from keras.layers.recurrent import SimpleRNN, LSTM
-from keras.layers.convolutional import Convolution2D
-from keras.optimizers import SGD, Adam, RMSprop
-import sklearn.metrics as metrics
-
-from keras.callbacks import ModelCheckpoint
-
-import cv2
 import numpy as np
-import json
 import pygame
 import cozmo
 from PIL import Image
-
-
-import math
-import h5py
-import glob
-from tqdm import tqdm
-import scipy
-from scipy import misc
 
 imgSize = (66, 200, 3) # h, w, channels
 speed = 75.0
@@ -47,11 +23,6 @@ def run(sdk_conn):
 
     # load weights
     model.load_weights("weights/model_basic_weight.hdf5")
-
-    adam = Adam(lr=0.0001)
-    model.compile(loss='mse',
-                  optimizer=adam,
-                  metrics=['mse','accuracy'])
 
     # Prime Keras by making a first prediction
     steer = model.predict(np.zeros((1,imgSize[0],imgSize[1],imgSize[2]), dtype=np.float16))
