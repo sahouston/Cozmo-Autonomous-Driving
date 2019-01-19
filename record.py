@@ -6,8 +6,6 @@ import sys
 import autodrive_constants
 from PIL import Image
 
-imgSize = (66, 200, 3) # h, w, channels
-
 class Joystick:
     def __init__(self):
         pygame.joystick.init()
@@ -40,6 +38,7 @@ def run(sdk_conn):
     # Lift arms and look down to get good view of road ahead
     robot.set_lift_height(1.0, in_parallel=True)
     robot.set_head_angle(autodrive_constants.HEAD_ANGLE, in_parallel=True)
+    robot.set_head_light(True)
 
     joystick = Joystick()
 
@@ -47,6 +46,7 @@ def run(sdk_conn):
 
     images = list()
     steer = list()
+    imgSize = autodrive_constants.IMG_SIZE
 
     # -------- Main Program Loop -----------
     run = True
@@ -98,10 +98,12 @@ def run(sdk_conn):
 
         pygame.time.wait(100) # sleep
 
-    robot.stop_all_motors()        
+    robot.stop_all_motors()
+    robot.set_head_light(False)
     pygame.quit()
 
     if len(images) > 0:
+        print('Saving images')
         img_arr = np.zeros((len(images), imgSize[0], imgSize[1], imgSize[2]), dtype=np.float16)
         steer_arr = np.zeros(len(steer), dtype=np.float32)
         for i in range(0, len(images)):
@@ -111,6 +113,8 @@ def run(sdk_conn):
         timestr = time.strftime("%Y%m%d-%H%M%S")
         np.savez(f'data/{timestr}-images.npz', img_arr=img_arr)
         np.savez(f'data/{timestr}-steer.npz', steer_arr=steer_arr)
+
+    print('Done')
 
 if __name__ == "__main__":
     pygame.init()

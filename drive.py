@@ -12,9 +12,9 @@ import cozmo
 import autodrive_constants
 from PIL import Image
 
-imgSize = (66, 200, 3) # h, w, channels
-
 def run(sdk_conn):
+    imgSize = autodrive_constants.IMG_SIZE
+
     # load the model:
     model = Sequential()
     with open('autopilot_basic_model.json') as model_file:
@@ -32,6 +32,7 @@ def run(sdk_conn):
     # Lift arms and look down to get good view of road ahead
     robot.set_lift_height(1.0, in_parallel=True)
     robot.set_head_angle(autodrive_constants.HEAD_ANGLE, in_parallel=True)
+    robot.set_head_light(True)
 
     screen = pygame.display.set_mode((320,240))
 
@@ -64,9 +65,10 @@ def run(sdk_conn):
         robot.drive_wheel_motors(l_wheel_speed, r_wheel_speed, l_wheel_acc=500, r_wheel_acc=500)
 
         pygame.time.wait(100) # sleep
-        
-    pygame.quit()
 
+    robot.stop_all_motors() 
+    robot.set_head_light(False)
+    pygame.quit()
 
 if __name__ == "__main__":
     pygame.init()
