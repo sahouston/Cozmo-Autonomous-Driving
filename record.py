@@ -16,7 +16,6 @@ class Joystick:
         self.y = 0.0
         self.z = 0.0
         self.throttle = 0.0
-        self.button = 0
 
     def event(self, event):
         # You may need to change the axis mapping.
@@ -31,8 +30,6 @@ class Joystick:
                 self.throttle = -event.value
             elif event.axis == 3:
                 self.z = event.value
-        elif event.type == pygame.JOYBUTTONDOWN:
-            self.button = 1 # event.button
 
 
 def run(sdk_conn):
@@ -45,29 +42,33 @@ def run(sdk_conn):
 
     joystick = Joystick()
 
-    screen = pygame.display.set_mode((640,480))
+    screen = pygame.display.set_mode((320,240))
 
     images = list()
     steer = list()
 
     # -------- Main Program Loop -----------
     run = True
+    recording = False
+    print("Not recording, press joystick button to start. Cozmo's lights will turn red while recording.")
     while run:
         joystickMoved = False
         # Get events
         for event in pygame.event.get():
-            if event.type == pygame.JOYAXISMOTION or event.type == pygame.JOYBUTTONDOWN:
+            if event.type == pygame.JOYAXISMOTION:
                 joystick.event(event)
                 joystickMoved = True
+            elif event.type == pygame.JOYBUTTONUP:
+                if event.button == 0:
+                    recording = not recording
+                    if recording:
+                        robot.set_all_backpack_lights(cozmo.lights.red_light)
+                    else:
+                        robot.set_backpack_lights_off()
             elif event.type == pygame.QUIT:
                 run = False
 
         if joystickMoved:
-            if joystick.button != 0:
-                # Button pressed, stop moving and exit
-                robot.stop_all_motors()
-                break
-
             if abs(joystick.throttle) < 0.1:
                 robot.stop_all_motors()
             else:
@@ -90,22 +91,25 @@ def run(sdk_conn):
             pygame.display.flip() # update the display
             # Scale image
             scaled_img = raw.resize((imgSize[1], imgSize[0]), Image.BICUBIC)
-            images.append(scaled_img)
-            steer.append(joystick.x)
+            if recording:
+                images.append(scaled_img)
+                steer.append(joystick.x)
 
         pygame.time.wait(100) # sleep
-        
+
+    robot.stop_all_motors()        
     pygame.quit()
 
-    img_arr = np.zeros((len(images), imgSize[0], imgSize[1], imgSize[2]), dtype=np.float16)
-    steer_arr = np.zeros(len(steer), dtype=np.float32)
-    for i in range(0, len(images)):
-        img_arr[i] = np.array(images[i], dtype=np.float16) / 255.
-        steer_arr[i] = steer[i]
+    if len(images) > 0:
+        img_arr = np.zeros((len(images), imgSize[0], imgSize[1], imgSize[2]), dtype=np.float16)
+        steer_arr = np.zeros(len(steer), dtype=np.float32)
+        for i in range(0, len(images)):
+            img_arr[i] = np.array(images[i], dtype=np.float16) / 255.
+            steer_arr[i] = steer[i]
 
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    np.savez(f'data/{timestr}-images.npz', img_arr=img_arr)
-    np.savez(f'data/{timestr}-steer.npz', steer_arr=steer_arr)
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        np.savez(f'data/{timestr}-images.npz', img_arr=img_arr)
+        np.savez(f'data/{timestr}-steer.npz', steer_arr=steer_arr)
 
 if __name__ == "__main__":
     pygame.init()
