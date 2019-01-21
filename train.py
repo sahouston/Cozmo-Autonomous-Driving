@@ -14,7 +14,6 @@ import glob
 
 import matplotlib.pyplot as plt
 
-
 imgSize = autodrive_constants.IMG_SIZE
 imgs = np.zeros((0, imgSize[0], imgSize[1], imgSize[2]), dtype=np.float16)
 targets = np.zeros(0, dtype=np.float32)
@@ -25,12 +24,26 @@ for imgfile, steerfile in zip(imgfiles, steerfiles):
     imgs = np.append(imgs, np.load(imgfile)['img_arr'], axis=0)
     targets = np.append(targets, np.load(steerfile)['steer_arr'], axis=0)
 
+# Augment the training data by flipping each image left to right
+# and inverting the steering inputs
+imgs_aug = np.zeros(imgs.shape, dtype=np.float16)
+targets_aug = np.zeros(targets.shape, dtype=np.float32)
+for i in range(0, imgs.shape[0]):
+    imgs_aug[i,:] = np.fliplr(imgs[i,:])
+    targets_aug[i] = -targets[i]
+
+imgs = np.append(imgs, imgs_aug, axis=0)
+targets = np.append(targets, targets_aug, axis=0)
+
+imgs_aug = None
+target_aug = None
+
 print(f'Have {imgs.shape[0]} training images')
 
-idx = 2000
-imgplot = plt.imshow(imgs[idx,:].astype(np.float32))
-print(f'steer: {targets[idx]}')
-plt.show()
+#idx = 2000
+#imgplot = plt.imshow(imgs[idx,:].astype(np.float32))
+#print(f'steer: {targets[idx]}')
+#plt.show()
 
 # Shuffle images and steering targets
 idx = np.arange(0,imgs.shape[0])
