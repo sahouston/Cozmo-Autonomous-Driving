@@ -19,8 +19,8 @@ imgSize = autodrive_constants.IMG_SIZE
 imgs = np.zeros((0, imgSize[0], imgSize[1], imgSize[2]), dtype=np.float16)
 targets = np.zeros(0, dtype=np.float32)
 
-imgfiles = sorted(glob.glob('data/*-images.npz'))
-steerfiles = sorted(glob.glob('data/*-steer.npz'))
+imgfiles = sorted(glob.glob('data_train/*-images.npz'))
+steerfiles = sorted(glob.glob('data_train/*-steer.npz'))
 for imgfile, steerfile in zip(imgfiles, steerfiles):
     imgs = np.append(imgs, np.load(imgfile)['img_arr'], axis=0)
     targets = np.append(targets, np.load(steerfile)['steer_arr'], axis=0)

@@ -1,10 +1,12 @@
 import pygame
 import cozmo
-import time
 import numpy as np
-import sys
+import os, sys, time
 import autodrive_constants
 from PIL import Image
+
+data_dir = 'data_train'
+#data_dir = 'data_test'
 
 class Joystick:
     def __init__(self):
@@ -111,8 +113,11 @@ def run(sdk_conn):
             steer_arr[i] = steer[i]
 
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        np.savez(f'data/{timestr}-images.npz', img_arr=img_arr)
-        np.savez(f'data/{timestr}-steer.npz', steer_arr=steer_arr)
+
+        if not os.path.exists(data_dir):
+            os.mkdir(data_dir)
+        np.savez(f'{data_dir}/{timestr}-images.npz', img_arr=img_arr)
+        np.savez(f'{data_dir}/{timestr}-steer.npz', steer_arr=steer_arr)
 
     print('Done')
 
