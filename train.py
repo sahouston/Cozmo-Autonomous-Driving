@@ -25,7 +25,7 @@ for imgfile, steerfile in zip(imgfiles, steerfiles):
     targets = np.append(targets, np.load(steerfile)['steer_arr'], axis=0)
 
 # Augment the training data by flipping each image left to right
-# and inverting the steering inputs
+# and reversing the steering inputs
 imgs_aug = np.zeros(imgs.shape, dtype=np.float16)
 targets_aug = np.zeros(targets.shape, dtype=np.float32)
 for i in range(0, imgs.shape[0]):
