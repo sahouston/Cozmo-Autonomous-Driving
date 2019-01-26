@@ -6,7 +6,7 @@ import autodrive_constants
 from PIL import Image
 
 data_dir = 'data_train'
-#data_dir = 'data_test'
+#data_dir = 'data_val'
 
 class Joystick:
     def __init__(self):

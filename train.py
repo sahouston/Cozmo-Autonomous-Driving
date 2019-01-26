@@ -17,7 +17,10 @@ import matplotlib.pyplot as plt
 imgSize = autodrive_constants.IMG_SIZE
 imgs = np.zeros((0, imgSize[0], imgSize[1], imgSize[2]), dtype=np.float16)
 targets = np.zeros(0, dtype=np.float32)
+imgs_val = np.zeros((0, imgSize[0], imgSize[1], imgSize[2]), dtype=np.float16)
+targets_val = np.zeros(0, dtype=np.float32)
 
+# Load training data
 imgfiles = sorted(glob.glob('data_train/*-images.npz'))
 steerfiles = sorted(glob.glob('data_train/*-steer.npz'))
 for imgfile, steerfile in zip(imgfiles, steerfiles):
@@ -40,6 +43,15 @@ target_aug = None
 
 print(f'Have {imgs.shape[0]} training images')
 
+# Load validation data
+imgfiles = sorted(glob.glob('data_val/*-images.npz'))
+steerfiles = sorted(glob.glob('data_val/*-steer.npz'))
+for imgfile, steerfile in zip(imgfiles, steerfiles):
+    imgs_val = np.append(imgs_val, np.load(imgfile)['img_arr'], axis=0)
+    targets_val = np.append(targets_val, np.load(steerfile)['steer_arr'], axis=0)
+
+print(f'Have {imgs_val.shape[0]} validation images')
+
 #idx = 2000
 #imgplot = plt.imshow(imgs[idx,:].astype(np.float32))
 #print(f'steer: {targets[idx]}')
@@ -56,22 +68,17 @@ model = Sequential()
 with open('autopilot_basic_model.json') as model_file:
     model = models.model_from_json(model_file.read())
 
-# checkpoint
-filepath="weights/weights.best.hdf5"
-checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
-callbacks_list = [checkpoint]
-
 adam = Adam(lr=0.0001)
 model.compile(loss='mse',
               optimizer=adam,
-              metrics=['mse','accuracy'])
+              metrics=['mse'])
 
 epochs = 25
 batch_size = 64
 
-model.fit(imgs, targets, callbacks=callbacks_list,
+model.fit(imgs, targets, 
 	batch_size=batch_size, epochs=epochs, verbose=1,
-	validation_split=0.1, shuffle=True)
+	validation_data=(imgs_val, targets_val), shuffle=True)
 
 model.save_weights('weights/model_basic_weight.hdf5')
 
