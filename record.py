@@ -5,6 +5,7 @@ import os, sys, time
 import autodrive_constants
 from PIL import Image
 
+# Choose whether you are recording training or validation data
 data_dir = 'data_train'
 #data_dir = 'data_val'
 
@@ -54,6 +55,7 @@ def run(sdk_conn):
     run = True
     recording = False
     print("Not recording, press joystick button to start. Cozmo's lights will turn red while recording.")
+    print("Close video window to save data and exit.")
     while run:
         joystickMoved = False
         # Get events
@@ -79,8 +81,6 @@ def run(sdk_conn):
                     direction = 1
                 else:
                     direction = -1
-                #l_wheel_speed = (joystick.throttle * 150.0) + (joystick.x * 75.0)
-                #r_wheel_speed = (joystick.throttle * 150.0) - (joystick.x * 75.0)
                 l_wheel_speed = (direction * autodrive_constants.RECORD_DRIVE_SPEED) + (joystick.x * 75.0)
                 r_wheel_speed = (direction * autodrive_constants.RECORD_DRIVE_SPEED) - (joystick.x * 75.0)
                 robot.drive_wheel_motors(l_wheel_speed, r_wheel_speed, l_wheel_acc=500, r_wheel_acc=500)
@@ -104,6 +104,7 @@ def run(sdk_conn):
     robot.set_head_light(False)
     pygame.quit()
 
+    # Save images and steering inputs
     if len(images) > 0:
         print('Saving images')
         img_arr = np.zeros((len(images), imgSize[0], imgSize[1], imgSize[2]), dtype=np.float16)
