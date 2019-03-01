@@ -57,11 +57,8 @@ def run(sdk_conn):
             scaled_img = raw.resize((imgSize[1], imgSize[0]), Image.BICUBIC)
             steer = model.predict(np.array(scaled_img, dtype=np.float16, ndmin=4)/255.)
 
-        # TODO: shouldn't need STEER_MULTIPLIER
-        l_wheel_speed = autodrive_constants.AUTO_DRIVE_SPEED + \
-            (steer * autodrive_constants.STEER_MULTIPLIER * 75.0) 
-        r_wheel_speed = autodrive_constants.AUTO_DRIVE_SPEED - \
-            (steer * autodrive_constants.STEER_MULTIPLIER * 75.0)
+        l_wheel_speed = autodrive_constants.AUTO_DRIVE_SPEED + (steer * 75.0) 
+        r_wheel_speed = autodrive_constants.AUTO_DRIVE_SPEED - (steer * 75.0)
         robot.drive_wheel_motors(l_wheel_speed, r_wheel_speed, l_wheel_acc=500, r_wheel_acc=500)
 
         pygame.time.wait(100) # sleep
