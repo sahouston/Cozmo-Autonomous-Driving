@@ -12,7 +12,7 @@ The [Cozmo SDK](http://cozmosdk.anki.com/docs/) allows us to control the robot u
 
 PC -- USB Cable -- Mobile Device running Cozmo App -- WiFi connection -- Robot
 
-With this configuration we can get live images from the robot's camera to the PC, pass them through PilotNet to predict which direction to steer and send the steering command to the robot.
+With this configuration we can get live images from the robot's camera to the PC and send steering commands back to the robot.
 
 ## Collecting Training Data
 
@@ -24,7 +24,7 @@ To train the network we require many images from the camera and the correspondin
 
 ## Autonomous Driving
 
-Once training is complete [drive.py](drive.py) loads the trained weights and starts driving Cozmo without any human input, he's a self-driving robot now.
+Once training is complete [drive.py](drive.py) loads the trained weights, passes images from the live camera feed through PilotNet to predict in realtime which direction to steer and sends the steering command to the robot.
 
 
 # Installation
@@ -40,8 +40,7 @@ https://docs.nvidia.com/deeplearning/sdk/cudnn-install/
 Then:
 
 ```
-conda install numpy scipy mkl-service libpython nose sklearn
-conda install theano pygpu
+conda install numpy scipy mkl-service libpython nose sklearn theano pygpu
 conda install -c conda-forge opencv keras
 pip install pygame 
 ```
