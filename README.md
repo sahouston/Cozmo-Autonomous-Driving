@@ -2,9 +2,11 @@
 
 Anki's Cozmo robot has a built in camera and an extensive python SDK, everything we need for autonomous driving.
 
-![cozmo](images/cozmo.jpg)
+Youtube video of self driving Cozmo:
 
-We will use a convolutional neural network (CNN) architecture developed by nVidia for their self driving car called PilotNet. More details are available in this [end-to-end deep learning for self-driving cars](https://devblogs.nvidia.com/deep-learning-self-driving-cars/) blog. It is implemented using Keras with Theano back-end and is based on [this implementation](https://github.com/0bserver07/Nvidia-Autopilot-Keras).
+[![Cozmo autonomous driving](images/youtube.jpg)](https://www.youtube.com/watch?v=1NHsIE3mchw "Cozmo autonomous driving")
+
+This uses a convolutional neural network (CNN) architecture developed by nVidia for their self driving car called PilotNet. More details are available in this [end-to-end deep learning for self-driving cars](https://devblogs.nvidia.com/deep-learning-self-driving-cars/) blog. It is implemented using Keras with Theano back-end and is based on [this implementation](https://github.com/0bserver07/Nvidia-Autopilot-Keras). It was trained on an nVidia 1050Ti.
 
 
 ## Cozmo SDK
@@ -16,7 +18,7 @@ With this configuration we can get live images from the robot's camera to the PC
 
 ## Collecting Training Data
 
-To train the network we require many images from the camera and the corresponding correct steering commands. The script [record.py](record.py) uses a joystick connected to the PC to control Cozmo. While you are driving the camera images and your steering inputs are recorded (saved in the data_train/ directory). Joystick button 1 is used to toggle recording on and off (Cozmo's LEDs turns red while recording).
+To train the network we require many images from the camera and the corresponding correct steering commands. The script [record.py](record.py) uses a joystick connected to the PC to control Cozmo. While you are driving the camera images and your steering inputs are recorded (saved in the data_train/ directory). Joystick button 1 is used to toggle recording on and off (Cozmo's LEDs turns red while recording). When the youtube video was recorded the model had been trained with 17,818 images.
 
 ## Training
 
