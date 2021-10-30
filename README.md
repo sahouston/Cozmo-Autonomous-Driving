@@ -22,7 +22,7 @@ To train the network we require many images from the camera and the correspondin
 
 ## Training
 
-[train.py](train.py) loads all of the recorded images and steering instructions in data_train/ and the network is trained on it for 25 epochs (25 passes through the data).
+[train.py](train.py) loads all of the recorded images and steering instructions in data_train/ and the network is trained on it for 25 epochs.
 
 ## Autonomous Driving
 
